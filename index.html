@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>AI Tweet Generator</title>
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=SF+Pro+Display:wght@300;400;500;600&family=Inter:wght@300;400;500;600&display=swap');
+
+body{
+  font-family:'Inter',sans-serif;
+  background-image:url("https://cdn.vectorstock.com/i/500p/56/04/artificial-intelligence-technical-background-vector-43795604.jpg");
+  background-size:cover;
+  background-position:center;
+  background-repeat:no-repeat;
+  background-attachment:fixed;
+
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  min-height:100vh;
+  padding:20px;
+  position:relative;
+}
+
+.container {
+  width: 100%;
+  max-width: 500px;
+  background: #ffffff;
+  padding: 48px;
+  border-radius: 28px;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.04);
+}
+
+h1 {
+  font-size: 28px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  margin-bottom: 32px;
+  text-align: center;
+  color: #ec1a1a;
+}
+
+label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #151516;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+  display: block;
+}
+
+input, textarea, select {
+  background: #fbfbfd;
+  border: 1px solid #d2d2d7;
+  border-radius: 12px;
+  padding: 14px;
+  margin-bottom: 24px;
+  font-size: 16px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+button {
+  background: #0071e3;
+  color: white;
+  border-radius: 12px;
+  padding: 16px;
+  font-weight: 500;
+  border: none;
+  width: 100%;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+button:hover { opacity: 0.85; }
+
+.tweet {
+  background: #f5f5f7;
+  border-radius: 16px;
+  padding: 20px;
+  margin-top: 12px;
+  border: none;
+  font-size: 15px;
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<h1>Brand Tweet Generator</h1>
+
+<form id="tweetForm">
+
+<label>Brand Name</label>
+<input type="text" name="brand" required>
+
+<label>Industry</label>
+<input type="text" name="industry">
+
+<label>Campaign Objective</label>
+<select name="objective">
+
+<option value="engagement">Engagement</option>
+<option value="promotion">Promotion</option>
+<option value="awareness">Awareness</option>
+<option value="lead_generation">Lead Generation</option>
+<option value="product_launch">Product Launch</option>
+<option value="brand_building">Brand Building</option>
+<option value="customer_retention">Customer Retention</option>
+<option value="event_marketing">Event Marketing</option>
+<option value="community_building">Community Building</option>
+<option value="website_traffic">Website Traffic</option>
+
+</select>
+
+<label>Products / Description</label>
+<textarea name="products" rows="4"></textarea>
+
+<button type="submit">Generate Tweets</button>
+
+</form>
+
+<div id="result"></div>
+
+</div>
+
+<script>
+
+document.getElementById("tweetForm").addEventListener("submit", async function(e){
+
+e.preventDefault();
+
+const formData = new FormData(e.target);
+const data = Object.fromEntries(formData.entries());
+
+const resultBox = document.getElementById("result");
+
+resultBox.innerHTML = "<div class='loading'>⚡ Generating tweets...</div>";
+
+try{
+
+const response = await fetch("https://sunnith.app.n8n.cloud/webhook/generate-tweets",{
+method:"POST",
+headers:{
+"Content-Type":"application/json"
+},
+body:JSON.stringify(data)
+});
+
+const result = await response.json();
+
+/* Get AI response */
+let text = result.choices[0].message.content;
+
+/* Remove stars */
+text = text.replace(/\*\*/g,"");
+
+/* Split lines */
+const lines = text.split("\n").filter(line => line.trim() !== "");
+
+let html="";
+
+lines.forEach(line=>{
+
+if(line.toLowerCase().includes("brand voice")){
+html += `<div class="heading">🧠 ${line}</div>`;
+}
+
+else if(line.toLowerCase().includes("tweets")){
+html += `<div class="heading">🐦 ${line}</div>`;
+}
+
+else if(line.match(/^\d+\./)){
+html += `<div class="tweet">🚀 ${line}</div>`;
+}
+
+else{
+html += `<div class="tweet">${line}</div>`;
+}
+
+});
+
+resultBox.innerHTML = html;
+
+}catch(error){
+
+resultBox.innerHTML = "⚠ Error connecting to AI service";
+
+}
+
+});
+
+</script>
+
+</body>
+</html>
